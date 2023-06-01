@@ -23,7 +23,7 @@ func (service UserService) CreateUser(userDto dto.User) (dto.User, error) {
 	}
 
 	return dto.User{
-		Id:       int8(createdUser.Id),
+		Id:       createdUser.Id,
 		Username: createdUser.Username,
 	}, nil
 }
