@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  expense_management_mysql:
+    container_name: expense_management_mysql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: expense_management
+    ports:
+      - "3306:3306"
+    networks:
+      - bubble
+
+networks:
+  bubble:
+    external: true

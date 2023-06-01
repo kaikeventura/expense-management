@@ -2,6 +2,7 @@ package server
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kaikeventura/expense-management/configuration/server/routes"
@@ -14,7 +15,7 @@ type Server struct {
 
 func NewServer() Server {
 	return Server{
-		port:   "8080",
+		port:   os.Getenv("SERVER_PORT"),
 		server: gin.Default(),
 	}
 }
