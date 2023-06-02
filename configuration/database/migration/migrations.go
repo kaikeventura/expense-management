@@ -8,7 +8,7 @@ import (
 )
 
 func ExecuteMigrations(database *gorm.DB) {
-	trucateTables(database)
+	// trucateTables(database)
 	err := database.AutoMigrate(entity.User{}, entity.Expense{}, entity.FixedExpense{}, entity.Purchase{}, entity.CreditCardPurchase{})
 
 	if err != nil {

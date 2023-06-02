@@ -14,7 +14,7 @@ func ConfigurationRouter(router *gin.Engine) *gin.Engine {
 		}
 		expense := main.Group("expense")
 		{
-			expense.GET("/")
+			expense.POST("/", controller.CreateExpense)
 		}
 	}
 
