@@ -2,7 +2,6 @@ package repository
 
 import (
 	"log"
-	"time"
 
 	"github.com/kaikeventura/expense-management/src/dto"
 	"github.com/kaikeventura/expense-management/src/repository/entity"
@@ -21,7 +20,6 @@ func ConstructUserRepository(database *gorm.DB) UserRepository {
 
 func (repository UserRepository) SaveUser(user dto.User) (entity.User, error) {
 	userEntity := buildUserEntity(user)
-
 	err := repository.database.Create(&userEntity).Error
 
 	if err != nil {
@@ -34,8 +32,5 @@ func (repository UserRepository) SaveUser(user dto.User) (entity.User, error) {
 }
 
 func buildUserEntity(user dto.User) entity.User {
-	return entity.User{
-		Username:  user.Username,
-		CreatedAt: time.Now(),
-	}
+	return entity.User{Username: user.Username}
 }

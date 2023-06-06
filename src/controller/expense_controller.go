@@ -27,7 +27,7 @@ func CreateExpense(context *gin.Context) {
 	var createdExpense, expenseError = expenseService.CreateExpense(expense)
 
 	if expenseError != nil {
-		context.JSON(404, gin.H{
+		context.JSON(400, gin.H{
 			"error": expenseError.Error(),
 		})
 
