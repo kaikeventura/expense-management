@@ -12,10 +12,10 @@ type Expense struct {
 }
 
 type FixedExpense struct {
-	Id          uint32   `json:"id"`
-	Category    Category `json:"category"`
-	Description string   `json:"description"`
-	Amount      int32    `json:"amount"`
+	Id          uint32 `json:"id"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Amount      int32  `json:"amount"`
 }
 
 type Purchase struct {

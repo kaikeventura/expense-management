@@ -42,3 +42,24 @@ func (service ExpenseService) CreateExpense(expenseDto dto.Expense) (dto.Expense
 		CreditCardPurchases: make([]dto.CreditCardPurchase, 0),
 	}, nil
 }
+
+func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseDto dto.FixedExpense) (dto.FixedExpense, error) {
+	fixedExpenseEntity := entity.FixedExpense{
+		ExpenseId:   expenseId,
+		Category:    fixedExpenseDto.Category,
+		Description: fixedExpenseDto.Description,
+		Amount:      fixedExpenseDto.Amount,
+	}
+	createdFixedExpense, err := service.repository.SaveFixedExpense(fixedExpenseEntity)
+
+	if err != nil {
+		return dto.FixedExpense{}, err
+	}
+
+	return dto.FixedExpense{
+		Id:          createdFixedExpense.Id,
+		Category:    createdFixedExpense.Category,
+		Description: createdFixedExpense.Description,
+		Amount:      createdFixedExpense.Amount,
+	}, nil
+}

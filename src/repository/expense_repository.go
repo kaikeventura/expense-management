@@ -36,3 +36,15 @@ func (repository ExpenseRepository) SaveExpense(expense entity.Expense) (entity.
 
 	return expense, nil
 }
+
+func (repository ExpenseRepository) SaveFixedExpense(fixedExpense entity.FixedExpense) (entity.FixedExpense, error) {
+	err := repository.database.Create(&fixedExpense).Error
+
+	if err != nil {
+		log.Print("Persistence error: " + err.Error())
+
+		return entity.FixedExpense{}, err
+	}
+
+	return fixedExpense, nil
+}
