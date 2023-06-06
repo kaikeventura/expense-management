@@ -1,6 +1,22 @@
 version: "3"
 
 services:
+  expense_management_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: expense_management_api
+    depends_on:
+      - expense_management_mysql
+    env_file:
+      - .docker-env
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    networks:
+      - bubble
+
   expense_management_mysql:
     container_name: expense_management_mysql
     image: mysql
