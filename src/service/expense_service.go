@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kaikeventura/expense-management/src/dto"
@@ -44,6 +45,16 @@ func (service ExpenseService) CreateExpense(expenseDto dto.Expense) (dto.Expense
 }
 
 func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseDto dto.FixedExpense) (dto.FixedExpense, error) {
+	expeseExists, err := service.repository.ExpenseExists(expenseId)
+
+	if err != nil {
+		return dto.FixedExpense{}, err
+	}
+
+	if !expeseExists {
+		return dto.FixedExpense{}, fmt.Errorf("expense with id %d does not exists", expenseId)
+	}
+
 	fixedExpenseEntity := entity.FixedExpense{
 		ExpenseId:   expenseId,
 		Category:    fixedExpenseDto.Category,
