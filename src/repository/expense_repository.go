@@ -51,6 +51,21 @@ func (repository ExpenseRepository) FindExpenseById(expenseId uint16) (entity.Ex
 	return expense, nil
 }
 
+func (repository ExpenseRepository) FindExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+	var expense entity.Expense
+	if err := repository.database.First(&expense, "user_id = ? and sequence_number = ?", userId, sequenceNumber).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Print("Expense does not exists: " + err.Error())
+			return entity.Expense{}, err
+		} else {
+			fmt.Println("Error occurred:", err)
+			return entity.Expense{}, err
+		}
+	}
+
+	return expense, nil
+}
+
 func (repository ExpenseRepository) UpdateExpenseTotalAmount(expenseId uint16, newTotalAmount int32) error {
 	var expense entity.Expense
 	return repository.database.Model(&expense).Where("id", expenseId).UpdateColumn("total_amount", newTotalAmount).Error
@@ -78,4 +93,16 @@ func (repository ExpenseRepository) SavePurchase(purchase entity.Purchase) (enti
 	}
 
 	return purchase, nil
+}
+
+func (repository ExpenseRepository) SaveCreditCardPurchase(creditCardPurchase entity.CreditCardPurchase) (entity.CreditCardPurchase, error) {
+	err := repository.database.Create(&creditCardPurchase).Error
+
+	if err != nil {
+		log.Print("Persistence error: " + err.Error())
+
+		return entity.CreditCardPurchase{}, err
+	}
+
+	return creditCardPurchase, nil
 }

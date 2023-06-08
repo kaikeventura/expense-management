@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kaikeventura/expense-management/src/dto"
@@ -111,8 +112,66 @@ func (service ExpenseService) CreatePurchase(expenseId uint16, purchase dto.Purc
 	}, nil
 }
 
+func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchase dto.CreditCardPurchaseRequest) error {
+	if purchase.Installments < 1 {
+		return fmt.Errorf("installments must be greater than 0")
+	}
+
+	expeseEntity, err := service.getExpenseById(expenseId)
+
+	if err != nil {
+		return err
+	}
+
+	installmentAmount := purchase.Amount / int32(purchase.Installments)
+	sequenceNumber := expeseEntity.SequenceNumber
+
+	for installmentNumber := uint8(1); installmentNumber < purchase.Installments; installmentNumber++ {
+		expeseEntity, err := service.getExpenseBySequenceNumber(expeseEntity.UserId, sequenceNumber)
+
+		if err != nil {
+			return err
+		}
+
+		purchaseEntity := entity.CreditCardPurchase{
+			ExpenseId:          expeseEntity.Id,
+			Category:           purchase.Category,
+			Description:        purchase.Description,
+			Amount:             installmentAmount,
+			CurrentInstallment: installmentNumber,
+			LastInstallment:    purchase.Installments,
+		}
+		_, err = service.repository.SaveCreditCardPurchase(purchaseEntity)
+
+		if err != nil {
+			return err
+		}
+
+		entity.PlusExpenseTotalAmount(&expeseEntity, installmentAmount)
+		err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
+
+		if err != nil {
+			return err
+		}
+
+		sequenceNumber++
+	}
+
+	return nil
+}
+
 func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseById(expenseId)
+
+	if err != nil {
+		return entity.Expense{}, err
+	}
+
+	return expese, nil
+}
+
+func (service ExpenseService) getExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseBySequenceNumber(userId, sequenceNumber)
 
 	if err != nil {
 		return entity.Expense{}, err
