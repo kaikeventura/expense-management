@@ -45,7 +45,6 @@ type CreditCardPurchase struct {
 	LastInstallment    uint8  `gorm:"not null"`
 }
 
-func PlusExpenseTotalAmount(expense *Expense, amount int32) int32 {
+func PlusExpenseTotalAmount(expense *Expense, amount int32) {
 	expense.TotalAmount += amount
-	return expense.TotalAmount
 }
