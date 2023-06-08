@@ -51,7 +51,7 @@ func (repository ExpenseRepository) FindExpenseById(expenseId uint16) (entity.Ex
 	return expense, nil
 }
 
-func (repository ExpenseRepository) FindExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+func (repository ExpenseRepository) FindExpenseByUserIdSequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
 	var expense entity.Expense
 	if err := repository.database.First(&expense, "user_id = ? and sequence_number = ?", userId, sequenceNumber).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
