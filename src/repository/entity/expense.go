@@ -9,6 +9,7 @@ type Expense struct {
 	Id                  uint16               `gorm:"primaryKey; autoIncrement"`
 	UserId              uint8                `gorm:"not null"`
 	ReferenceMonth      string               `gorm:"not null; size:7"`
+	SequenceNumber      uint16               `gorm:"not null"`
 	State               string               `gorm:"not null"`
 	TotalAmount         int32                `gorm:"not null"`
 	FixedExpenses       []FixedExpense       `gorm:"null"`
