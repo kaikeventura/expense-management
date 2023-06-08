@@ -77,6 +77,40 @@ func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseD
 	}, nil
 }
 
+func (service ExpenseService) CreatePurchase(expenseId uint16, purchase dto.Purchase) (dto.Purchase, error) {
+	expeseEntity, err := service.getExpenseById(expenseId)
+
+	if err != nil {
+		return dto.Purchase{}, err
+	}
+
+	purchaseEntity := entity.Purchase{
+		ExpenseId:   expenseId,
+		Category:    purchase.Category,
+		Description: purchase.Description,
+		Amount:      purchase.Amount,
+	}
+	createdPurchase, err := service.repository.SavePurchase(purchaseEntity)
+
+	if err != nil {
+		return dto.Purchase{}, err
+	}
+
+	entity.PlusExpenseTotalAmount(&expeseEntity, purchase.Amount)
+	err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
+
+	if err != nil {
+		return dto.Purchase{}, err
+	}
+
+	return dto.Purchase{
+		Id:          createdPurchase.Id,
+		Category:    createdPurchase.Category,
+		Description: createdPurchase.Description,
+		Amount:      createdPurchase.Amount,
+	}, nil
+}
+
 func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseById(expenseId)
 
