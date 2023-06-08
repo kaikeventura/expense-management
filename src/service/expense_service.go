@@ -59,7 +59,7 @@ func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBa
 		expenseExisting, err := service.getExpenseByUserIdAndReferenceMonth(expenseBatchDto.UserId, referenceMonth)
 
 		if err != nil {
-			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth))
+			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth, err))
 		}
 		if expenseExisting.Id != 0 {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Reference month already exists", referenceMonth))
