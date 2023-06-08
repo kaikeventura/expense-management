@@ -110,3 +110,40 @@ func CreatePurchase(context *gin.Context) {
 
 	context.JSON(201, createdPurchase)
 }
+
+func CreateCreditCardPurchase(context *gin.Context) {
+	var purchase dto.CreditCardPurchaseRequest
+
+	err := context.ShouldBindJSON(&purchase)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Json: " + err.Error(),
+		})
+
+		return
+	}
+
+	expenseId := context.Param("expenseId")
+	unitExpenseId, err := strconv.ParseUint(expenseId, 10, 16)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Param: " + err.Error(),
+		})
+
+		return
+	}
+
+	var createdCreditCardPurchase, creditCardPurchaseError = expenseService.CreateCreditCardPurchase(uint16(unitExpenseId), purchase)
+
+	if creditCardPurchaseError != nil {
+		context.JSON(400, gin.H{
+			"error": creditCardPurchaseError.Error(),
+		})
+
+		return
+	}
+
+	context.JSON(201, createdCreditCardPurchase)
+}

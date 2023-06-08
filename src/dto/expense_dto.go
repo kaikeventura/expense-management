@@ -26,36 +26,20 @@ type Purchase struct {
 }
 
 type CreditCardPurchase struct {
-	Id                 uint32   `json:"id"`
-	Category           Category `json:"category"`
-	Description        string   `json:"description"`
-	Amount             int32    `json:"amount"`
-	CurrentInstallment uint8    `json:"current_installment"`
-	LastInstallment    uint8    `json:"last_installment"`
+	Id                 uint32 `json:"id"`
+	Category           string `json:"category"`
+	Description        string `json:"description"`
+	Amount             int32  `json:"amount"`
+	CurrentInstallment uint8  `json:"current_installment"`
+	LastInstallment    uint8  `json:"last_installment"`
 }
 
-type Category int
-
-const (
-	Unknown Category = iota
-	Pending
-	InProgress
-	Completed
-)
-
-func (s Category) CategoryToString() string {
-	switch s {
-	case Unknown:
-		return "Unknown"
-	case Pending:
-		return "Pending"
-	case InProgress:
-		return "In Progress"
-	case Completed:
-		return "Completed"
-	default:
-		return "Invalid"
-	}
+type CreditCardPurchaseRequest struct {
+	Id           uint32 `json:"id"`
+	Category     string `json:"category"`
+	Description  string `json:"description"`
+	Amount       int32  `json:"amount"`
+	Installments uint8  `json:"installments"`
 }
 
 type State int
