@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kaikeventura/expense-management/src/dto"
@@ -111,8 +112,77 @@ func (service ExpenseService) CreatePurchase(expenseId uint16, purchase dto.Purc
 	}, nil
 }
 
+func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchase dto.CreditCardPurchaseRequest) (dto.CreditCardPurchase, error) {
+	if purchase.Installments < 1 {
+		return dto.CreditCardPurchase{}, fmt.Errorf("installments must be greater than 0")
+	}
+
+	expeseEntity, err := service.getExpenseById(expenseId)
+
+	if err != nil {
+		return dto.CreditCardPurchase{}, err
+	}
+
+	installmentAmount := purchase.Amount / int32(purchase.Installments)
+
+	dbTransaction := service.repository.Database.Begin()
+
+	if dbTransaction.Error != nil {
+		return dto.CreditCardPurchase{}, dbTransaction.Error
+	}
+
+	for i := uint8(0); i < purchase.Installments; i++ {
+		expeseEntity, err := service.getExpenseBySequenceNumber(expeseEntity.UserId, expeseEntity.SequenceNumber)
+
+		if err != nil {
+			return dto.CreditCardPurchase{}, err
+		}
+
+		purchaseEntity := entity.CreditCardPurchase{
+			ExpenseId:          expeseEntity.Id,
+			Category:           purchase.Category,
+			Description:        purchase.Description,
+			Amount:             installmentAmount,
+			CurrentInstallment: i + 1,
+			LastInstallment:    purchase.Installments,
+		}
+		_, err = service.repository.SaveCreditCardPurchase(purchaseEntity)
+
+		if err != nil {
+			dbTransaction.Rollback()
+			return dto.CreditCardPurchase{}, err
+		}
+
+		entity.PlusExpenseTotalAmount(&expeseEntity, purchase.Amount)
+		err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
+
+		if err != nil {
+			dbTransaction.Rollback()
+			return dto.CreditCardPurchase{}, err
+		}
+	}
+
+	err = dbTransaction.Commit().Error
+	if err != nil {
+		dbTransaction.Rollback()
+		return dto.CreditCardPurchase{}, err
+	}
+
+	return dto.CreditCardPurchase{}, nil
+}
+
 func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseById(expenseId)
+
+	if err != nil {
+		return entity.Expense{}, err
+	}
+
+	return expese, nil
+}
+
+func (service ExpenseService) getExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseBySequenceNumber(userId, sequenceNumber)
 
 	if err != nil {
 		return entity.Expense{}, err
