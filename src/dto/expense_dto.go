@@ -5,7 +5,7 @@ type Expense struct {
 	UserId              uint8                `json:"user_id"`
 	ReferenceMonth      string               `json:"reference_month"`
 	State               string               `json:"state"`
-	TotalAmount         uint32               `json:"total_amount"`
+	TotalAmount         int32                `json:"total_amount"`
 	FixedExpenses       []FixedExpense       `json:"fixed_expenses"`
 	Purchases           []Purchase           `json:"purchases"`
 	CreditCardPurchases []CreditCardPurchase `json:"credit_card_purchases"`

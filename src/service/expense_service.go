@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kaikeventura/expense-management/src/dto"
@@ -45,14 +44,17 @@ func (service ExpenseService) CreateExpense(expenseDto dto.Expense) (dto.Expense
 }
 
 func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseDto dto.FixedExpense) (dto.FixedExpense, error) {
-	expeseExists, err := service.repository.ExpenseExists(expenseId)
+	expeseEntity, err := service.getExpenseById(expenseId)
 
 	if err != nil {
 		return dto.FixedExpense{}, err
 	}
 
-	if !expeseExists {
-		return dto.FixedExpense{}, fmt.Errorf("expense with id %d does not exists", expenseId)
+	entity.PlusExpenseTotalAmount(&expeseEntity, fixedExpenseDto.Amount)
+	err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
+
+	if err != nil {
+		return dto.FixedExpense{}, err
 	}
 
 	fixedExpenseEntity := entity.FixedExpense{
@@ -73,4 +75,14 @@ func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseD
 		Description: createdFixedExpense.Description,
 		Amount:      createdFixedExpense.Amount,
 	}, nil
+}
+
+func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseById(expenseId)
+
+	if err != nil {
+		return entity.Expense{}, err
+	}
+
+	return expese, nil
 }
