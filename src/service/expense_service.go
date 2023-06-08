@@ -124,7 +124,6 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 	}
 
 	installmentAmount := purchase.Amount / int32(purchase.Installments)
-
 	sequenceNumber := expeseEntity.SequenceNumber
 
 	for installmentNumber := uint8(1); installmentNumber < purchase.Installments; installmentNumber++ {
