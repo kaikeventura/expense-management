@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type Expense struct {
 	Id                  uint16               `json:"id"`
@@ -78,8 +80,8 @@ func ValidateFormatYearMonthDate(referenceMonth string) bool {
 	_, err := time.Parse(YYYYMM, referenceMonth)
 
 	if err != nil || len(referenceMonth) != 7 {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }

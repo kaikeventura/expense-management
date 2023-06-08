@@ -54,15 +54,18 @@ func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBa
 	for _, referenceMonth := range expenseBatchDto.ReferencesMonth {
 		if dto.ValidateFormatYearMonthDate(referenceMonth) {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Invalid reference month format", referenceMonth))
+			continue
 		}
 
 		expenseExisting, err := service.getExpenseByUserIdAndReferenceMonth(expenseBatchDto.UserId, referenceMonth)
 
 		if err != nil {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth, err))
+			continue
 		}
 		if expenseExisting.Id != 0 {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Reference month already exists", referenceMonth))
+			continue
 		}
 
 		expenseEntity := entity.Expense{
@@ -75,6 +78,7 @@ func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBa
 
 		if err != nil {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth, err))
+			continue
 		}
 
 		statuses["success"] = append(statuses["success"], referenceMonth)
