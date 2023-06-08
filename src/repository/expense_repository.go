@@ -51,12 +51,27 @@ func (repository ExpenseRepository) FindExpenseById(expenseId uint16) (entity.Ex
 	return expense, nil
 }
 
-func (repository ExpenseRepository) FindExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+func (repository ExpenseRepository) FindExpenseByUserIdSequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
 	var expense entity.Expense
 	if err := repository.database.First(&expense, "user_id = ? and sequence_number = ?", userId, sequenceNumber).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			log.Print("Expense does not exists: " + err.Error())
 			return entity.Expense{}, err
+		} else {
+			fmt.Println("Error occurred:", err)
+			return entity.Expense{}, err
+		}
+	}
+
+	return expense, nil
+}
+
+func (repository ExpenseRepository) FindExpenseByUserIdAndReferenceMonth(userId uint8, referenceMonth string) (entity.Expense, error) {
+	var expense entity.Expense
+	if err := repository.database.First(&expense, "user_id = ? and reference_month = ?", userId, referenceMonth).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Print("Expense does not exists: " + err.Error())
+			return entity.Expense{}, nil
 		} else {
 			fmt.Println("Error occurred:", err)
 			return entity.Expense{}, err

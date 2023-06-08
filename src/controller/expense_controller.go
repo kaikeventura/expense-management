@@ -39,6 +39,31 @@ func CreateExpense(context *gin.Context) {
 	context.JSON(201, createdExpense)
 }
 
+func CreateExpenseInBatch(context *gin.Context) {
+	var expenseBatch dto.ExpenseBatch
+	err := context.ShouldBindJSON(&expenseBatch)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Json: " + err.Error(),
+		})
+
+		return
+	}
+
+	var createdExpenseBatch, ExpenseBatchError = expenseService.CreateExpenseInBatch(expenseBatch)
+
+	if ExpenseBatchError != nil {
+		context.JSON(400, gin.H{
+			"error": ExpenseBatchError.Error(),
+		})
+
+		return
+	}
+
+	context.JSON(201, createdExpenseBatch)
+}
+
 func CreateFixedExpense(context *gin.Context) {
 	var fixedExpense dto.FixedExpense
 	err := context.ShouldBindJSON(&fixedExpense)
