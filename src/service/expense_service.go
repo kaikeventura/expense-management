@@ -127,7 +127,7 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 
 	sequenceNumber := expeseEntity.SequenceNumber
 
-	for i := uint8(0); i < purchase.Installments; i++ {
+	for installmentNumber := uint8(1); installmentNumber < purchase.Installments; installmentNumber++ {
 		expeseEntity, err := service.getExpenseBySequenceNumber(expeseEntity.UserId, sequenceNumber)
 
 		if err != nil {
@@ -139,7 +139,7 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 			Category:           purchase.Category,
 			Description:        purchase.Description,
 			Amount:             installmentAmount,
-			CurrentInstallment: i + 1,
+			CurrentInstallment: installmentNumber,
 			LastInstallment:    purchase.Installments,
 		}
 		_, err = service.repository.SaveCreditCardPurchase(purchaseEntity)
