@@ -10,7 +10,7 @@ type Expense struct {
 	UserId              uint8                `gorm:"not null"`
 	ReferenceMonth      string               `gorm:"not null; size:7"`
 	State               string               `gorm:"not null"`
-	TotalAmount         uint32               `gorm:"not null"`
+	TotalAmount         int32                `gorm:"not null"`
 	FixedExpenses       []FixedExpense       `gorm:"null"`
 	Purchases           []Purchase           `gorm:"null"`
 	CreditCardPurchases []CreditCardPurchase `gorm:"null"`
@@ -43,4 +43,8 @@ type CreditCardPurchase struct {
 	Amount             int32  `gorm:"not null"`
 	CurrentInstallment uint8  `gorm:"not null"`
 	LastInstallment    uint8  `gorm:"not null"`
+}
+
+func PlusExpenseTotalAmount(expense *Expense, amount int32) {
+	expense.TotalAmount += amount
 }
