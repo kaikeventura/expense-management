@@ -44,6 +44,45 @@ func (service ExpenseService) CreateExpense(expenseDto dto.Expense) (dto.Expense
 	}, nil
 }
 
+func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBatch) (map[string][]string, error) {
+	if len(expenseBatchDto.ReferencesMonth) == 0 || expenseBatchDto.ReferencesMonth == nil {
+		return make(map[string][]string), fmt.Errorf("must contain at least one reference date")
+	}
+
+	statuses := make(map[string][]string)
+
+	for _, referenceMonth := range expenseBatchDto.ReferencesMonth {
+		if dto.ValidateFormatYearMonthDate(referenceMonth) {
+			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Invalid reference month format", referenceMonth))
+		}
+
+		expenseExisting, err := service.getExpenseByUserIdAndReferenceMonth(expenseBatchDto.UserId, referenceMonth)
+
+		if err != nil {
+			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth))
+		}
+		if expenseExisting.Id != 0 {
+			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Reference month already exists", referenceMonth))
+		}
+
+		expenseEntity := entity.Expense{
+			UserId:         expenseBatchDto.UserId,
+			ReferenceMonth: referenceMonth,
+			State:          dto.FUTURE.StateToString(),
+			TotalAmount:    0,
+		}
+		_, err = service.repository.SaveExpense(expenseEntity)
+
+		if err != nil {
+			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth, err))
+		}
+
+		statuses["success"] = append(statuses["success"], referenceMonth)
+	}
+
+	return statuses, nil
+}
+
 func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseDto dto.FixedExpense) (dto.FixedExpense, error) {
 	expeseEntity, err := service.getExpenseById(expenseId)
 
@@ -172,6 +211,16 @@ func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, 
 
 func (service ExpenseService) getExpenseBySequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseBySequenceNumber(userId, sequenceNumber)
+
+	if err != nil {
+		return entity.Expense{}, err
+	}
+
+	return expese, nil
+}
+
+func (service ExpenseService) getExpenseByUserIdAndReferenceMonth(userId uint8, referenceMonth string) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseByUserIdAndReferenceMonth(userId, referenceMonth)
 
 	if err != nil {
 		return entity.Expense{}, err

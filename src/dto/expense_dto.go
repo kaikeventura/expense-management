@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type Expense struct {
 	Id                  uint16               `json:"id"`
 	UserId              uint8                `json:"user_id"`
@@ -34,6 +36,11 @@ type CreditCardPurchase struct {
 	LastInstallment    uint8  `json:"last_installment"`
 }
 
+type ExpenseBatch struct {
+	UserId          uint8    `json:"user_id"`
+	ReferencesMonth []string `json:"reference_month"`
+}
+
 type CreditCardPurchaseRequest struct {
 	Id           uint32 `json:"id"`
 	Category     string `json:"category"`
@@ -66,3 +73,13 @@ func (s State) StateToString() string {
 const (
 	YYYYMM = "2006-01"
 )
+
+func ValidateFormatYearMonthDate(referenceMonth string) bool {
+	_, err := time.Parse(YYYYMM, referenceMonth)
+
+	if err != nil || len(referenceMonth) != 7 {
+		return false
+	}
+
+	return true
+}
