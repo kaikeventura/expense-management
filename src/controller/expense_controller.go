@@ -51,17 +51,17 @@ func CreateExpenseInBatch(context *gin.Context) {
 		return
 	}
 
-	var createdExpenseBatch, ExpenseBatchError = expenseService.CreateExpenseInBatch(expenseBatch)
+	var createdExpenseBatch, expenseBatchError = expenseService.CreateExpenseInBatch(expenseBatch)
 
-	if ExpenseBatchError != nil {
+	if expenseBatchError != nil {
 		context.JSON(400, gin.H{
-			"error": ExpenseBatchError.Error(),
+			"error": expenseBatchError.Error(),
 		})
 
 		return
 	}
 
-	context.JSON(201, createdExpenseBatch)
+	context.JSON(200, createdExpenseBatch)
 }
 
 func CreateFixedExpense(context *gin.Context) {
