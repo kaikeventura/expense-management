@@ -74,3 +74,39 @@ func CreateFixedExpense(context *gin.Context) {
 
 	context.JSON(201, createdFixedExpense)
 }
+
+func CreatePurchase(context *gin.Context) {
+	var purchase dto.Purchase
+	err := context.ShouldBindJSON(&purchase)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Json: " + err.Error(),
+		})
+
+		return
+	}
+
+	expenseId := context.Param("expenseId")
+	unitExpenseId, err := strconv.ParseUint(expenseId, 10, 16)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Param: " + err.Error(),
+		})
+
+		return
+	}
+
+	var createdPurchase, purchaseError = expenseService.CreatePurchase(uint16(unitExpenseId), purchase)
+
+	if purchaseError != nil {
+		context.JSON(400, gin.H{
+			"error": purchaseError.Error(),
+		})
+
+		return
+	}
+
+	context.JSON(201, createdPurchase)
+}

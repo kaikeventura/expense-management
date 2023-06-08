@@ -41,11 +41,11 @@ func (repository ExpenseRepository) FindExpenseById(expenseId uint16) (entity.Ex
 	if err := repository.database.First(&expense, expenseId).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			log.Print("Expense does not exists: " + err.Error())
+			return entity.Expense{}, err
 		} else {
 			fmt.Println("Error occurred:", err)
 			return entity.Expense{}, err
 		}
-		return entity.Expense{}, nil
 	}
 
 	return expense, nil
@@ -66,4 +66,16 @@ func (repository ExpenseRepository) SaveFixedExpense(fixedExpense entity.FixedEx
 	}
 
 	return fixedExpense, nil
+}
+
+func (repository ExpenseRepository) SavePurchase(purchase entity.Purchase) (entity.Purchase, error) {
+	err := repository.database.Create(&purchase).Error
+
+	if err != nil {
+		log.Print("Persistence error: " + err.Error())
+
+		return entity.Purchase{}, err
+	}
+
+	return purchase, nil
 }
