@@ -50,13 +50,6 @@ func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseD
 		return dto.FixedExpense{}, err
 	}
 
-	entity.PlusExpenseTotalAmount(&expeseEntity, fixedExpenseDto.Amount)
-	err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
-
-	if err != nil {
-		return dto.FixedExpense{}, err
-	}
-
 	fixedExpenseEntity := entity.FixedExpense{
 		ExpenseId:   expenseId,
 		Category:    fixedExpenseDto.Category,
@@ -64,6 +57,13 @@ func (service ExpenseService) CreateFixedExpense(expenseId uint16, fixedExpenseD
 		Amount:      fixedExpenseDto.Amount,
 	}
 	createdFixedExpense, err := service.repository.SaveFixedExpense(fixedExpenseEntity)
+
+	if err != nil {
+		return dto.FixedExpense{}, err
+	}
+
+	entity.PlusExpenseTotalAmount(&expeseEntity, fixedExpenseDto.Amount)
+	err = service.repository.UpdateExpenseTotalAmount(expeseEntity.Id, expeseEntity.TotalAmount)
 
 	if err != nil {
 		return dto.FixedExpense{}, err
