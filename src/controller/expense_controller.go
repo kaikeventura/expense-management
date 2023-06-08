@@ -135,7 +135,7 @@ func CreateCreditCardPurchase(context *gin.Context) {
 		return
 	}
 
-	var createdCreditCardPurchase, creditCardPurchaseError = expenseService.CreateCreditCardPurchase(uint16(unitExpenseId), purchase)
+	creditCardPurchaseError := expenseService.CreateCreditCardPurchase(uint16(unitExpenseId), purchase)
 
 	if creditCardPurchaseError != nil {
 		context.JSON(400, gin.H{
@@ -145,5 +145,5 @@ func CreateCreditCardPurchase(context *gin.Context) {
 		return
 	}
 
-	context.JSON(201, createdCreditCardPurchase)
+	context.Status(204)
 }
