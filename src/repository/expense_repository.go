@@ -81,6 +81,21 @@ func (repository ExpenseRepository) FindExpenseByUserIdAndReferenceMonth(userId 
 	return expense, nil
 }
 
+func (repository ExpenseRepository) FindExpenseByUserIdAndStatus(userId uint8, status string) (entity.Expense, error) {
+	var expense entity.Expense
+	if err := repository.database.First(&expense, "user_id = ? and status = ?", userId, status).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Print("Expense does not exists: " + err.Error())
+			return entity.Expense{}, err
+		} else {
+			fmt.Println("Error occurred:", err)
+			return entity.Expense{}, err
+		}
+	}
+
+	return expense, nil
+}
+
 func (repository ExpenseRepository) UpdateExpenseTotalAmount(expenseId uint16, newTotalAmount int32) error {
 	var expense entity.Expense
 	return repository.database.Model(&expense).Where("id", expenseId).UpdateColumn("total_amount", newTotalAmount).Error
