@@ -170,7 +170,7 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 	sequenceNumber := expeseEntity.SequenceNumber
 
 	for installmentNumber := uint8(0); installmentNumber < purchase.Installments; installmentNumber++ {
-		expeseEntity, err := service.getExpenseByUserIdSequenceNumber(expeseEntity.UserId, sequenceNumber)
+		expeseEntity, err := service.getExpenseByUserIdAndSequenceNumber(expeseEntity.UserId, sequenceNumber)
 
 		if err != nil {
 			return err
@@ -265,8 +265,8 @@ func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, 
 	return expese, nil
 }
 
-func (service ExpenseService) getExpenseByUserIdSequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
-	expese, err := service.repository.FindExpenseByUserIdSequenceNumber(userId, sequenceNumber)
+func (service ExpenseService) getExpenseByUserIdAndSequenceNumber(userId uint8, sequenceNumber uint16) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseByUserIdAndSequenceNumber(userId, sequenceNumber)
 
 	if err != nil {
 		return entity.Expense{}, err
