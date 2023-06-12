@@ -203,6 +203,58 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 	return nil
 }
 
+func (service ExpenseService) GetCurrentExpenseByUserId(userId uint8) (dto.Expense, error) {
+	expenseEntity, err := service.getExpenseByUserIdAndStatus(userId, "CURRENT")
+
+	if err != nil {
+		return dto.Expense{}, err
+	}
+
+	fixedExpensesDto := []dto.FixedExpense{}
+	for _, fixedExpense := range expenseEntity.FixedExpenses {
+		fixedExpenseDto := dto.FixedExpense{
+			Id:          fixedExpense.Id,
+			Category:    fixedExpense.Category,
+			Description: fixedExpense.Description,
+			Amount:      fixedExpense.Amount,
+		}
+		fixedExpensesDto = append(fixedExpensesDto, fixedExpenseDto)
+	}
+
+	purchasesDto := []dto.Purchase{}
+	for _, purchase := range expenseEntity.Purchases {
+		purchaseDto := dto.Purchase{
+			Id:          purchase.Id,
+			Category:    purchase.Category,
+			Description: purchase.Description,
+			Amount:      purchase.Amount,
+		}
+		purchasesDto = append(purchasesDto, purchaseDto)
+	}
+
+	creditCardPurchasesDto := []dto.CreditCardPurchase{}
+	for _, creditCardPurchase := range expenseEntity.CreditCardPurchases {
+		creditCardPurchaseDto := dto.CreditCardPurchase{
+			Id:          creditCardPurchase.Id,
+			Category:    creditCardPurchase.Category,
+			Description: creditCardPurchase.Description,
+			Amount:      creditCardPurchase.Amount,
+		}
+		creditCardPurchasesDto = append(creditCardPurchasesDto, creditCardPurchaseDto)
+	}
+
+	return dto.Expense{
+		Id:                  expenseEntity.Id,
+		UserId:              expenseEntity.UserId,
+		ReferenceMonth:      expenseEntity.ReferenceMonth,
+		State:               expenseEntity.State,
+		TotalAmount:         expenseEntity.TotalAmount,
+		FixedExpenses:       fixedExpensesDto,
+		Purchases:           purchasesDto,
+		CreditCardPurchases: creditCardPurchasesDto,
+	}, nil
+}
+
 func (service ExpenseService) getExpenseById(expenseId uint16) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseById(expenseId)
 
@@ -225,6 +277,16 @@ func (service ExpenseService) getExpenseByUserIdSequenceNumber(userId uint8, seq
 
 func (service ExpenseService) getExpenseByUserIdAndReferenceMonth(userId uint8, referenceMonth string) (entity.Expense, error) {
 	expese, err := service.repository.FindExpenseByUserIdAndReferenceMonth(userId, referenceMonth)
+
+	if err != nil {
+		return entity.Expense{}, err
+	}
+
+	return expese, nil
+}
+
+func (service ExpenseService) getExpenseByUserIdAndStatus(userId uint8, status string) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseByUserIdAndStatus(userId, status)
 
 	if err != nil {
 		return entity.Expense{}, err

@@ -172,3 +172,28 @@ func CreateCreditCardPurchase(context *gin.Context) {
 
 	context.Status(204)
 }
+
+func GetCurrentExpense(context *gin.Context) {
+	expenseId := context.Param("userId")
+	unitExpenseId, err := strconv.ParseUint(expenseId, 10, 16)
+
+	if err != nil {
+		context.JSON(400, gin.H{
+			"error": "Cannot bind Param: " + err.Error(),
+		})
+
+		return
+	}
+
+	currentExpense, creditCardPurchaseError := expenseService.GetCurrentExpenseByUserId(uint8(unitExpenseId))
+
+	if creditCardPurchaseError != nil {
+		context.JSON(400, gin.H{
+			"error": creditCardPurchaseError.Error(),
+		})
+
+		return
+	}
+
+	context.JSON(200, currentExpense)
+}

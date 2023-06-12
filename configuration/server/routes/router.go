@@ -19,6 +19,8 @@ func ConfigurationRouter(router *gin.Engine) *gin.Engine {
 			expense.POST("/:expenseId/fixed", controller.CreateFixedExpense)
 			expense.POST("/:expenseId/purchase", controller.CreatePurchase)
 			expense.POST("/:expenseId/credit-card-purchase", controller.CreateCreditCardPurchase)
+
+			expense.GET("/:userId/current", controller.GetCurrentExpense)
 		}
 	}
 
