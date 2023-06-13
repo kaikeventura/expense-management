@@ -8,5 +8,5 @@ type User struct {
 	gorm.Model
 	Id       uint8     `gorm:"primaryKey; autoIncrement"`
 	Username string    `gorm:"not null; unique"`
-	Expenses []Expense `gorm:"null"`
+	Expenses []Expense `gorm:"null, foreignKey:UserId"`
 }

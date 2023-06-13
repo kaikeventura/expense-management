@@ -12,9 +12,9 @@ type Expense struct {
 	SequenceNumber      uint16               `gorm:"not null"`
 	State               string               `gorm:"not null"`
 	TotalAmount         int32                `gorm:"not null"`
-	FixedExpenses       []FixedExpense       `gorm:"null"`
-	Purchases           []Purchase           `gorm:"null"`
-	CreditCardPurchases []CreditCardPurchase `gorm:"null"`
+	FixedExpenses       []FixedExpense       `gorm:"null, foreignKey:ExpenseId"`
+	Purchases           []Purchase           `gorm:"null, foreignKey:ExpenseId"`
+	CreditCardPurchases []CreditCardPurchase `gorm:"null, foreignKey:ExpenseId"`
 }
 
 type FixedExpense struct {
