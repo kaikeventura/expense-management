@@ -204,7 +204,7 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 }
 
 func (service ExpenseService) GetCurrentExpenseByUserId(userId uint8) (dto.Expense, error) {
-	expenseEntity, err := service.getExpenseByUserIdAndStatus(userId, "CURRENT")
+	expenseEntity, err := service.getExpenseByUserIdAndState(userId, "CURRENT")
 
 	if err != nil {
 		return dto.Expense{}, err
@@ -235,10 +235,12 @@ func (service ExpenseService) GetCurrentExpenseByUserId(userId uint8) (dto.Expen
 	creditCardPurchasesDto := []dto.CreditCardPurchase{}
 	for _, creditCardPurchase := range expenseEntity.CreditCardPurchases {
 		creditCardPurchaseDto := dto.CreditCardPurchase{
-			Id:          creditCardPurchase.Id,
-			Category:    creditCardPurchase.Category,
-			Description: creditCardPurchase.Description,
-			Amount:      creditCardPurchase.Amount,
+			Id:                 creditCardPurchase.Id,
+			Category:           creditCardPurchase.Category,
+			Description:        creditCardPurchase.Description,
+			Amount:             creditCardPurchase.Amount,
+			CurrentInstallment: creditCardPurchase.CurrentInstallment,
+			LastInstallment:    creditCardPurchase.LastInstallment,
 		}
 		creditCardPurchasesDto = append(creditCardPurchasesDto, creditCardPurchaseDto)
 	}
@@ -285,8 +287,8 @@ func (service ExpenseService) getExpenseByUserIdAndReferenceMonth(userId uint8, 
 	return expese, nil
 }
 
-func (service ExpenseService) getExpenseByUserIdAndStatus(userId uint8, status string) (entity.Expense, error) {
-	expese, err := service.repository.FindExpenseByUserIdAndStatus(userId, status)
+func (service ExpenseService) getExpenseByUserIdAndState(userId uint8, state string) (entity.Expense, error) {
+	expese, err := service.repository.FindExpenseByUserIdAndState(userId, state)
 
 	if err != nil {
 		return entity.Expense{}, err
