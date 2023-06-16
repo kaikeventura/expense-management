@@ -6,3 +6,5 @@ export DATABASE_PASSWORD=root
 export DATABASE_HOST=localhost
 export DATABASE_PORT=3306
 export DATABASE_NAME=expense_management
+export CLIENT_ID=123
+export CLIENT_SECRET=123
