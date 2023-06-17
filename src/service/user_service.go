@@ -29,7 +29,7 @@ func (service UserService) CreateUser(userDto dto.User) (dto.User, error) {
 }
 
 func (service UserService) GetUserByUsername(username string) (dto.User, error) {
-	user, err := service.repository.findUserByUsername(username)
+	user, err := service.repository.FindUserByUsername(username)
 
 	if err != nil {
 		return dto.User{}, err

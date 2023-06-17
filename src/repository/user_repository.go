@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kaikeventura/expense-management/src/dto"
@@ -33,4 +34,19 @@ func (repository UserRepository) SaveUser(user dto.User) (entity.User, error) {
 
 func buildUserEntity(user dto.User) entity.User {
 	return entity.User{Username: user.Username}
+}
+
+func (repository UserRepository) FindUserByUsername(username string) (entity.User, error) {
+	var user entity.User
+	if err := repository.database.First(&user, "LOWER(username) = ?", username).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Print("User does not exists: " + err.Error())
+			return entity.User{}, err
+		} else {
+			fmt.Println("Error occurred:", err)
+			return entity.User{}, err
+		}
+	}
+
+	return user, nil
 }
