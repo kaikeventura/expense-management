@@ -36,3 +36,19 @@ func CreateUser(context *gin.Context) {
 
 	context.JSON(201, createdUser)
 }
+
+func GetUserByName(context *gin.Context) {
+	username := context.Param("username")
+
+	user, userError := userService.GetUserByUsername(username)
+
+	if userError != nil {
+		context.JSON(400, gin.H{
+			"error": userError.Error(),
+		})
+
+		return
+	}
+
+	context.JSON(200, user)
+}
