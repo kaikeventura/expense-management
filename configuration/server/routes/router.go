@@ -18,7 +18,7 @@ func ConfigurationRouter(router *gin.Engine) *gin.Engine {
 		{
 			user.POST("/", controller.CreateUser)
 
-			user.GET("/:userId", controller.GetUserByName)
+			user.GET("/:username", controller.GetUserByName)
 		}
 		expense := main.Group("expense")
 		{
