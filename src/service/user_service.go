@@ -27,3 +27,16 @@ func (service UserService) CreateUser(userDto dto.User) (dto.User, error) {
 		Username: createdUser.Username,
 	}, nil
 }
+
+func (service UserService) GetUserByUsername(username string) (dto.User, error) {
+	user, err := service.repository.findUserByUsername(username)
+
+	if err != nil {
+		return dto.User{}, err
+	}
+
+	return dto.User{
+		Id:       user.Id,
+		Username: user.Username,
+	}, nil
+}
