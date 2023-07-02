@@ -20,10 +20,23 @@ func ConstructExpenseService(repository repository.ExpenseRepository) ExpenseSer
 }
 
 func (service ExpenseService) CreateExpense(expenseDto dto.Expense) (dto.Expense, error) {
+	lastExpenseSequenceNumber, err := service.getLastExpenseSequenceNumberByUserId(expenseDto.UserId)
+	var newSequenceNumber uint16 = 0
+
+	if err != nil {
+		return dto.Expense{}, err
+	}
+	if lastExpenseSequenceNumber == 0 {
+		newSequenceNumber = 1
+	} else {
+		newSequenceNumber = lastExpenseSequenceNumber + 1
+	}
+
 	expenseEntity := entity.Expense{
 		UserId:         expenseDto.UserId,
 		ReferenceMonth: time.Now().Format(dto.YYYYMM),
 		State:          dto.CURRENT.StateToString(),
+		SequenceNumber: newSequenceNumber,
 		TotalAmount:    0,
 	}
 	createdExpense, err := service.repository.SaveExpense(expenseEntity)
@@ -51,6 +64,12 @@ func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBa
 
 	statuses := make(map[string][]string)
 
+	sequenceNumber, err := service.getLastExpenseSequenceNumberByUserId(expenseBatchDto.UserId)
+
+	if err != nil {
+		return make(map[string][]string), err
+	}
+
 	for _, referenceMonth := range expenseBatchDto.ReferencesMonth {
 		if dto.ValidateFormatYearMonthDate(referenceMonth) {
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => Invalid reference month format", referenceMonth))
@@ -68,15 +87,18 @@ func (service ExpenseService) CreateExpenseInBatch(expenseBatchDto dto.ExpenseBa
 			continue
 		}
 
+		sequenceNumber++
 		expenseEntity := entity.Expense{
 			UserId:         expenseBatchDto.UserId,
 			ReferenceMonth: referenceMonth,
 			State:          dto.FUTURE.StateToString(),
+			SequenceNumber: sequenceNumber,
 			TotalAmount:    0,
 		}
 		_, err = service.repository.SaveExpense(expenseEntity)
 
 		if err != nil {
+			sequenceNumber--
 			statuses["error"] = append(statuses["error"], fmt.Sprintf("%s => %s", referenceMonth, err))
 			continue
 		}
@@ -169,7 +191,7 @@ func (service ExpenseService) CreateCreditCardPurchase(expenseId uint16, purchas
 	installmentAmount := purchase.Amount / int32(purchase.Installments)
 	sequenceNumber := expeseEntity.SequenceNumber
 
-	for installmentNumber := uint8(0); installmentNumber < purchase.Installments; installmentNumber++ {
+	for installmentNumber := uint8(1); installmentNumber <= purchase.Installments; installmentNumber++ {
 		expeseEntity, err := service.getExpenseByUserIdAndSequenceNumber(expeseEntity.UserId, sequenceNumber)
 
 		if err != nil {
@@ -295,4 +317,14 @@ func (service ExpenseService) getExpenseByUserIdAndState(userId uint8, state str
 	}
 
 	return expese, nil
+}
+
+func (service ExpenseService) getLastExpenseSequenceNumberByUserId(userId uint8) (uint16, error) {
+	lastExpenseSequence, err := service.repository.FindLastExpenseSequenceNumberByUserId(userId)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return lastExpenseSequence, nil
 }
